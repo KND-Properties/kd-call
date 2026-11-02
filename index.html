@@ -15,7 +15,8 @@ p{color:#6A6170;margin:6px 0}
 <main>
   <p id="msg">Calling…</p>
   <a class="call" id="btn" href="#">Call</a>
-  <p>You can close this tab after your call.</p>
+  <p><button id="close" type="button" hidden onclick="window.close()" style="border:1px solid #E7E0E7;background:#fff;color:#5E2C5E;font:inherit;font-weight:600;padding:10px 22px;border-radius:999px">Close this page</button></p>
+  <p>If it stays open, swipe it away or go back to the Daily Desk.</p>
 </main>
 <script>
 // The number travels after the # so it is never sent to the web host.
@@ -26,6 +27,17 @@ if (n) {
   btn.href = "tel:" + n;
   btn.textContent = "Call " + shown;
   location.href = "tel:" + n;
+  // Close this tab once you come back from the call (or cancel the prompt).
+  // Browsers only allow this for tabs that were opened by another page, so it may not always work.
+  var left = false;
+  function tryClose() { try { window.close(); } catch (e) {} }
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) left = true;
+    else if (left) setTimeout(tryClose, 300);
+  });
+  window.addEventListener("blur", function () { left = true; });
+  window.addEventListener("focus", function () { if (left) setTimeout(tryClose, 300); });
+  document.getElementById("close").hidden = false;
 } else {
   document.getElementById("msg").textContent = "No phone number was passed to this page.";
   btn.hidden = true;
